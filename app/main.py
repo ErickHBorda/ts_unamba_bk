@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.models import *
 
 app = FastAPI(
     title="UNAMBA Escalafón API",
