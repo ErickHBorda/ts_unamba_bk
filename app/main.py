@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.models import *
-from app.schemas import *
+from app.api.v1.router import router
 
 app = FastAPI(
     title="UNAMBA Escalafón API",
@@ -16,6 +15,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(router)
 
 @app.get("/", tags=["Health"])
 def root():
