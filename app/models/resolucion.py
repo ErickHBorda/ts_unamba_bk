@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Date, Text, DateTime
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.base import Base
 
@@ -13,3 +14,5 @@ class Resolucion(Base):
     emitida_por       = Column(String(150))
     archivo_pdf       = Column(String(255))
     created_at        = Column(DateTime, server_default=func.now())
+
+    docentes = relationship("DocenteResolucion", back_populates="resolucion")
