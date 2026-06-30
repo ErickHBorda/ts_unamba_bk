@@ -1,4 +1,7 @@
 from pydantic_settings import BaseSettings
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 class Settings(BaseSettings):
     DB_HOST: str
@@ -7,6 +10,10 @@ class Settings(BaseSettings):
     DB_PASSWORD: str = ""
     DB_NAME: str
     SECRET_KEY: str
+
+    # Almacenamiento local
+    STORAGE_DIR:       Path = BASE_DIR / "storage"
+    RESOLUCIONES_DIR:  Path = BASE_DIR / "storage" / "resoluciones"
 
     @property
     def DATABASE_URL(self) -> str:
@@ -19,3 +26,7 @@ class Settings(BaseSettings):
         env_file = ".env"
 
 settings = Settings()
+
+# Crear directorios si no existen
+settings.STORAGE_DIR.mkdir(exist_ok=True)
+settings.RESOLUCIONES_DIR.mkdir(exist_ok=True)
