@@ -13,3 +13,16 @@ from app.schemas.resolucion import (
     ResolucionResponse,
     ResolucionListResponse,
 )
+
+from app.schemas.periodo_servicio import (
+    PeriodoServicioCreate,
+    PeriodoServicioUpdate,
+    PeriodoServicioResponse,
+    PeriodoServicioListResponse,
+)
+
+from app.schemas.descuento_periodo import (
+    DescuentoPeriodoCreate,
+    DescuentoPeriodoUpdate,
+    DescuentoPeriodoResponse,
+)
