@@ -1,3 +1,4 @@
+from app.schemas.response import StandardResponse, success_response, error_response
 from app.schemas.docente import (
     DocenteCreate,
     DocenteUpdate,
