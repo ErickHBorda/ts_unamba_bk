@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from typing import Optional
@@ -11,11 +12,12 @@ from app.schemas.resolucion import (
     ResolucionResponse,
     ResolucionListResponse,
 )
+from app.schemas.response import success_response, error_response
 
 router = APIRouter()
 
 
-@router.get("/", response_model=list[ResolucionListResponse])
+@router.get("/", response_model=None)
 def listar_resoluciones(
     buscar: Optional[str] = Query(None, description="Buscar por número o emisor"),
     skip:   int           = Query(0, ge=0),
@@ -35,39 +37,58 @@ def listar_resoluciones(
         )
 
     query = query.order_by(Resolucion.fecha_emision.desc())
-    return query.offset(skip).limit(limit).all()
+    resoluciones = query.offset(skip).limit(limit).all()
+
+    return success_response(
+        data=[ResolucionListResponse.model_validate(r).model_dump(mode="json") for r in resoluciones]
+    )
 
 
-@router.get("/{resolucion_id}", response_model=ResolucionResponse)
+@router.get("/{resolucion_id}", response_model=None)
 def obtener_resolucion(resolucion_id: int, db: Session = Depends(get_db)):
     resolucion = db.query(Resolucion).filter(Resolucion.id == resolucion_id).first()
     if not resolucion:
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Resolución con id {resolucion_id} no encontrada.",
+            content=error_response(
+                code="NOT_FOUND",
+                message=f"Resolución con id {resolucion_id} no encontrada.",
+            ),
         )
-    return resolucion
+
+    return success_response(
+        data=ResolucionResponse.model_validate(resolucion).model_dump(mode="json")
+    )
 
 
-@router.post("/", response_model=ResolucionResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=None, status_code=status.HTTP_201_CREATED)
 def crear_resolucion(payload: ResolucionCreate, db: Session = Depends(get_db)):
     existente = db.query(Resolucion).filter(
         Resolucion.numero_resolucion == payload.numero_resolucion
     ).first()
     if existente:
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Ya existe una resolución con el número {payload.numero_resolucion}.",
+            content=error_response(
+                code="NUMERO_DUPLICADO",
+                message=f"Ya existe una resolución con el número {payload.numero_resolucion}.",
+            ),
         )
 
     resolucion = Resolucion(**payload.model_dump())
     db.add(resolucion)
     db.commit()
     db.refresh(resolucion)
-    return resolucion
+
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content=success_response(
+            data=ResolucionResponse.model_validate(resolucion).model_dump(mode="json")
+        ),
+    )
 
 
-@router.patch("/{resolucion_id}", response_model=ResolucionResponse)
+@router.patch("/{resolucion_id}", response_model=None)
 def actualizar_resolucion(
     resolucion_id: int,
     payload:       ResolucionUpdate,
@@ -75,9 +96,12 @@ def actualizar_resolucion(
 ):
     resolucion = db.query(Resolucion).filter(Resolucion.id == resolucion_id).first()
     if not resolucion:
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Resolución con id {resolucion_id} no encontrada.",
+            content=error_response(
+                code="NOT_FOUND",
+                message=f"Resolución con id {resolucion_id} no encontrada.",
+            ),
         )
 
     if payload.numero_resolucion:
@@ -86,9 +110,12 @@ def actualizar_resolucion(
             Resolucion.id != resolucion_id,
         ).first()
         if duplicado:
-            raise HTTPException(
+            return JSONResponse(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"Ya existe otra resolución con el número {payload.numero_resolucion}.",
+                content=error_response(
+                    code="NUMERO_DUPLICADO",
+                    message=f"Ya existe otra resolución con el número {payload.numero_resolucion}.",
+                ),
             )
 
     datos = payload.model_dump(exclude_unset=True)
@@ -97,17 +124,25 @@ def actualizar_resolucion(
 
     db.commit()
     db.refresh(resolucion)
-    return resolucion
+
+    return success_response(
+        data=ResolucionResponse.model_validate(resolucion).model_dump(mode="json")
+    )
 
 
-@router.delete("/{resolucion_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{resolucion_id}", response_model=None)
 def eliminar_resolucion(resolucion_id: int, db: Session = Depends(get_db)):
     resolucion = db.query(Resolucion).filter(Resolucion.id == resolucion_id).first()
     if not resolucion:
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Resolución con id {resolucion_id} no encontrada.",
+            content=error_response(
+                code="NOT_FOUND",
+                message=f"Resolución con id {resolucion_id} no encontrada.",
+            ),
         )
 
     db.delete(resolucion)
     db.commit()
+
+    return success_response(data={"mensaje": "Resolución eliminada correctamente."})
