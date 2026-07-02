@@ -26,3 +26,8 @@ from app.schemas.descuento_periodo import (
     DescuentoPeriodoUpdate,
     DescuentoPeriodoResponse,
 )
+
+from app.schemas.docente_resolucion import (
+    DocenteResolucionCreate,
+    DocenteResolucionResponse,
+)
