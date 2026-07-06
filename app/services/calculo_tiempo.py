@@ -119,3 +119,81 @@ def calcular_dias_brutos_periodo(
 
     else:
         raise ValueError(f"Tipo de registro desconocido: {tipo_registro}")
+    
+# Algoritmo de resta de fechas basado en la regla de 30 días por mes y 360 días por año.
+
+def calcular_tiempo_efectivo_periodo(
+    anios_brutos:        int,
+    meses_brutos:        int,
+    dias_brutos:         int,
+    total_dias_descuento: int,
+) -> tuple[int, int, int, int, int]:
+    """
+    Calcula el tiempo efectivo de un periodo restando los días de descuento
+    al tiempo bruto.
+
+    Flujo:
+    1. Convierte tiempo bruto (años, meses, días) a días totales.
+    2. Resta el total de días de descuento.
+    3. Convierte el resultado de vuelta a (años, meses, días).
+
+    Retorna una tupla:
+    (dias_brutos_total, dias_descuento, dias_efectivos_total, anios_ef, meses_ef, dias_ef)
+    """
+    if total_dias_descuento < 0:
+        raise ValueError("El total de días de descuento no puede ser negativo.")
+
+    dias_brutos_total = convertir_a_dias_totales(anios_brutos, meses_brutos, dias_brutos)
+
+    # Protección: el descuento no puede superar el tiempo bruto
+    if total_dias_descuento > dias_brutos_total:
+        raise ValueError(
+            f"El descuento ({total_dias_descuento} días) supera el tiempo "
+            f"bruto del periodo ({dias_brutos_total} días)."
+        )
+
+    dias_efectivos_total = dias_brutos_total - total_dias_descuento
+    anios_ef, meses_ef, dias_ef = convertir_dias_a_anios_meses_dias(dias_efectivos_total)
+
+    return (
+        dias_brutos_total,
+        total_dias_descuento,
+        dias_efectivos_total,
+        anios_ef,
+        meses_ef,
+        dias_ef,
+    )
+
+
+def sumar_tiempos_efectivos(periodos: list[dict]) -> tuple[int, int, int, int, int, int]:
+    """
+    Suma los tiempos efectivos de todos los periodos de un docente.
+
+    Cada elemento de `periodos` debe tener la clave `dias_efectivos_total`.
+
+    Flujo:
+    1. Suma todos los días efectivos de cada periodo.
+    2. Suma todos los días brutos de cada periodo.
+    3. Suma todos los días de descuento de cada periodo.
+    4. Convierte el total efectivo a (años, meses, días).
+
+    Retorna:
+    (total_anios, total_meses, total_dias, total_dias_brutos,
+     total_dias_descuento, total_dias_efectivos)
+    """
+    total_dias_brutos    = sum(p["dias_brutos_total"]    for p in periodos)
+    total_dias_descuento = sum(p["dias_descuento"]       for p in periodos)
+    total_dias_efectivos = sum(p["dias_efectivos_total"] for p in periodos)
+
+    total_anios, total_meses, total_dias = convertir_dias_a_anios_meses_dias(
+        total_dias_efectivos
+    )
+
+    return (
+        total_anios,
+        total_meses,
+        total_dias,
+        total_dias_brutos,
+        total_dias_descuento,
+        total_dias_efectivos,
+    )
