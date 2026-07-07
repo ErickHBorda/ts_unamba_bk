@@ -31,7 +31,7 @@ def calcular_diferencia_30_360(fecha_inicio: date, fecha_fin: date) -> tuple[int
     anios = af - ai
 
     if dias < 0:
-        dias += 30
+        dias += 31   # Préstamo inclusivo: se cuenta el día de inicio como trabajado
         meses -= 1
 
     if meses < 0:
