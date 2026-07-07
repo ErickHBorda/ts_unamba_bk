@@ -32,3 +32,5 @@ from app.schemas.docente_resolucion import (
     DocenteResolucionCreate,
     DocenteResolucionResponse,
 )
+
+from app.schemas.calculo import CalculoResponse, DetalleCalculoResponse
