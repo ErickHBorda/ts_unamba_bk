@@ -52,7 +52,6 @@ def calcular_diferencia_30_360(fecha_inicio: date, fecha_fin: date) -> tuple[int
 
     return anios, meses, dias
 
-
 def convertir_a_dias_totales(anios: int, meses: int, dias: int) -> int:
     """
     Convierte una duración en (años, meses, días) a su equivalente
