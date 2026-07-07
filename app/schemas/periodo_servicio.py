@@ -8,6 +8,7 @@ class PeriodoServicioBase(BaseModel):
     categoria_id:     int
     condicion_id:     int
     resolucion_id:    Optional[int] = None
+    fuente:           Literal["RESOLUCION", "REPORTE_REMUNERACIONES", "OTRO"] = "RESOLUCION"
     tipo_registro:    Literal["ACTIVO", "CON_FECHAS", "MANUAL"]
     etiqueta_periodo: Optional[str] = None
     anio_periodo:     Optional[int] = None
@@ -38,6 +39,13 @@ class PeriodoServicioBase(BaseModel):
             if self.anios_brutos == 0 and self.meses_brutos == 0 and self.dias_brutos == 0:
                 raise ValueError("MANUAL requiere al menos un valor de tiempo bruto mayor a cero.")
 
+        # Validación cruzada fuente <-> resolucion_id
+        if self.fuente == "RESOLUCION" and not self.resolucion_id:
+            raise ValueError(
+                "Si la fuente es RESOLUCION debe indicar resolucion_id. "
+                "Si no tiene resolución use REPORTE_REMUNERACIONES u OTRO."
+            )
+
         return self
 
 
@@ -49,6 +57,7 @@ class PeriodoServicioUpdate(BaseModel):
     categoria_id:     Optional[int] = None
     condicion_id:     Optional[int] = None
     resolucion_id:    Optional[int] = None
+    fuente: Optional[Literal["RESOLUCION", "REPORTE_REMUNERACIONES", "OTRO"]] = None
     etiqueta_periodo: Optional[str] = None
     anio_periodo:     Optional[int] = None
     fecha_inicio:     Optional[date] = None
@@ -74,6 +83,7 @@ class PeriodoServicioListResponse(BaseModel):
     categoria_id:     int
     condicion_id:     int
     tipo_registro:    str
+    fuente: str
     etiqueta_periodo: Optional[str] = None
     fecha_inicio:     Optional[date] = None
     fecha_fin:        Optional[date] = None

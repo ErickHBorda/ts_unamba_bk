@@ -3,7 +3,7 @@
 from datetime import date
 from app.services.calculo_tiempo import calcular_diferencia_30_360
 
-print(calcular_diferencia_30_360(date(2020, 1, 1),  date(2022, 12, 31))) # Esperado: (3, 0, 0)
+print(calcular_diferencia_30_360(date(2024, 12, 18),  date(2024, 12, 31))) # Esperado: (3, 0, 0)
 print(calcular_diferencia_30_360(date(2020, 8, 20), date(2020, 11, 13))) # Esperado: (0, 2, 24)
 print(calcular_diferencia_30_360(date(2020, 11, 14), date(2021, 4, 6)))  # Esperado: (0, 4, 23)
 print(calcular_diferencia_30_360(date(2021, 6, 9),  date(2021, 10, 18))) # Esperado: (0, 4, 9)

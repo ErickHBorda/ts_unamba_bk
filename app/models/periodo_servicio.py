@@ -11,6 +11,7 @@ class PeriodoServicio(Base):
     categoria_id     = Column(Integer, ForeignKey("CATEGORIA_DOCENTE.id", ondelete="RESTRICT"), nullable=False)
     condicion_id     = Column(Integer, ForeignKey("CONDICION_LABORAL.id", ondelete="RESTRICT"), nullable=False)
     resolucion_id    = Column(Integer, ForeignKey("RESOLUCION.id", ondelete="SET NULL"))
+    fuente           = Column(Enum("RESOLUCION", "REPORTE_REMUNERACIONES", "OTRO"), nullable=False, default="RESOLUCION")
     tipo_registro    = Column(Enum("ACTIVO", "CON_FECHAS", "MANUAL"), nullable=False)
     etiqueta_periodo = Column(String(100))
     anio_periodo     = Column(Integer)
