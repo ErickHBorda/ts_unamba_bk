@@ -1,4 +1,5 @@
 from datetime import date
+import calendar
 
 
 def normalizar_dia(dia: int) -> int:
@@ -10,14 +11,14 @@ def normalizar_dia(dia: int) -> int:
 
 def calcular_diferencia_30_360(fecha_inicio: date, fecha_fin: date) -> tuple[int, int, int]:
     """
-    Calcula la diferencia entre dos fechas bajo la regla de 30 días por mes
-    (método 30/360, compatible con SIFECHA de Excel).
+    Calcula la diferencia entre dos fechas compatible con SIFECHA de Excel
+    (parámetros YM y MD).
 
     Reglas aplicadas:
-    - Día 31 en fecha_inicio se trata como día 30.
-    - Día 31 en fecha_fin se trata como día 30 SOLO para normalización final.
-    - Cuando hay préstamo de mes (dias < 0), se suman 31 días (conteo inclusivo).
-    - Si dias == 30 tras el cálculo, se normaliza como 1 mes adicional.
+    - Años y meses completos se calculan por diferencia directa de componentes.
+    - Cuando hay préstamo de mes (dias < 0), se usan los días reales del mes
+      anterior a fecha_fin, igual que SIFECHA("MD").
+    - Día 31 en fecha_fin se normaliza a 30 después de restar (para acumular mes).
     """
     if fecha_fin < fecha_inicio:
         raise ValueError("La fecha_fin no puede ser anterior a fecha_inicio.")
@@ -25,7 +26,6 @@ def calcular_diferencia_30_360(fecha_inicio: date, fecha_fin: date) -> tuple[int
     di = normalizar_dia(fecha_inicio.day)
     mi, ai = fecha_inicio.month, fecha_inicio.year
 
-    # fecha_fin: NO normalizar antes de restar, usar el día real
     df = fecha_fin.day
     mf, af = fecha_fin.month, fecha_fin.year
 
@@ -34,14 +34,19 @@ def calcular_diferencia_30_360(fecha_inicio: date, fecha_fin: date) -> tuple[int
     anios = af - ai
 
     if dias < 0:
-        dias += 31
+        # Obtener días reales del mes anterior a fecha_fin
+        mes_anterior = mf - 1 if mf > 1 else 12
+        anio_anterior = af if mf > 1 else af - 1
+        dias_mes_anterior = calendar.monthrange(anio_anterior, mes_anterior)[1]
+
+        dias += dias_mes_anterior
         meses -= 1
 
     if meses < 0:
         meses += 12
         anios -= 1
 
-    # Normalizar día 31 en fecha_fin DESPUÉS de restar
+    # Normalizar día 31 en fecha_fin después de restar
     if dias >= 30:
         dias = 0
         meses += 1
