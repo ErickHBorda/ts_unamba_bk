@@ -8,6 +8,7 @@ from app.core.exception_handlers import (
     integrity_error_handler,
     generic_exception_handler,
 )
+from app.services.reporte_pdf import generar_reporte_pdf
 
 app = FastAPI(
     title="UNAMBA Escalafón API",

@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     # Almacenamiento local
     STORAGE_DIR:       Path = BASE_DIR / "storage"
     RESOLUCIONES_DIR:  Path = BASE_DIR / "storage" / "resoluciones"
+    ASSETS_DIR:       Path = BASE_DIR / "storage" / "assets"
+    LOGO_UNAMBA:      Path = BASE_DIR / "storage" / "assets" / "logo_unamba.jpg"
 
     @property
     def DATABASE_URL(self) -> str:
@@ -35,3 +37,4 @@ settings = Settings()
 # Crear directorios si no existen
 settings.STORAGE_DIR.mkdir(exist_ok=True)
 settings.RESOLUCIONES_DIR.mkdir(exist_ok=True)
+settings.ASSETS_DIR.mkdir(exist_ok=True)
