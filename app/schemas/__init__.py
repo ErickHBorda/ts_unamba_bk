@@ -34,3 +34,5 @@ from app.schemas.docente_resolucion import (
 )
 
 from app.schemas.calculo import CalculoResponse, DetalleCalculoResponse
+
+from app.schemas.auth import LoginRequest, TokenResponse
