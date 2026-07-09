@@ -16,6 +16,9 @@ from app.schemas.periodo_servicio import (
     PeriodoServicioListResponse,
 )
 from app.schemas.response import success_response, error_response
+from typing import Annotated
+from app.core.dependencies import get_current_user, get_admin_user
+from app.models.usuario import Usuario
 
 router = APIRouter()
 
@@ -65,6 +68,7 @@ def listar_periodos(
     skip:          int            = Query(0, ge=0),
     limit:         int            = Query(20, ge=1, le=100),
     db:            Session        = Depends(get_db),
+    _:             Annotated[Usuario, Depends(get_current_user)] = None,
 ):
     query = db.query(PeriodoServicio)
 
@@ -84,7 +88,7 @@ def listar_periodos(
 
 
 @router.get("/{periodo_id}", response_model=None)
-def obtener_periodo(periodo_id: int, db: Session = Depends(get_db)):
+def obtener_periodo(periodo_id: int, db: Session = Depends(get_db), _: Annotated[Usuario, Depends(get_current_user)] = None):
     periodo = db.query(PeriodoServicio).filter(PeriodoServicio.id == periodo_id).first()
     if not periodo:
         return JSONResponse(
@@ -101,7 +105,7 @@ def obtener_periodo(periodo_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=None, status_code=status.HTTP_201_CREATED)
-def crear_periodo(payload: PeriodoServicioCreate, db: Session = Depends(get_db)):
+def crear_periodo(payload: PeriodoServicioCreate, db: Session = Depends(get_db), _: Annotated[Usuario, Depends(get_admin_user)] = None):
     error = verificar_dependencias(payload, db)
     if error:
         return error
@@ -124,6 +128,7 @@ def actualizar_periodo(
     periodo_id: int,
     payload:    PeriodoServicioUpdate,
     db:         Session = Depends(get_db),
+    _:          Annotated[Usuario, Depends(get_admin_user)] = None
 ):
     periodo = db.query(PeriodoServicio).filter(PeriodoServicio.id == periodo_id).first()
     if not periodo:
@@ -177,7 +182,7 @@ def actualizar_periodo(
 
 
 @router.delete("/{periodo_id}", response_model=None)
-def eliminar_periodo(periodo_id: int, db: Session = Depends(get_db)):
+def eliminar_periodo(periodo_id: int, db: Session = Depends(get_db), _: Annotated[Usuario, Depends(get_admin_user)] = None):
     periodo = db.query(PeriodoServicio).filter(PeriodoServicio.id == periodo_id).first()
     if not periodo:
         return JSONResponse(

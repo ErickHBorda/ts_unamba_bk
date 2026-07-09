@@ -8,6 +8,9 @@ from app.db.session import get_db
 from app.models.resolucion import Resolucion
 from app.core.config import settings
 from app.schemas.response import success_response, error_response
+from typing import Annotated
+from app.core.dependencies import get_current_user, get_admin_user
+from app.models.usuario import Usuario
 
 router = APIRouter()
 
@@ -20,6 +23,7 @@ async def subir_pdf_resolucion(
     resolucion_id: int,
     archivo:       UploadFile = File(...),
     db:            Session    = Depends(get_db),
+    _:             Annotated[Usuario, Depends(get_admin_user)] = None,
 ):
     resolucion = db.query(Resolucion).filter(Resolucion.id == resolucion_id).first()
     if not resolucion:
@@ -74,7 +78,7 @@ async def subir_pdf_resolucion(
 
 
 @router.get("/{resolucion_id}/pdf")
-def descargar_pdf_resolucion(resolucion_id: int, db: Session = Depends(get_db)):
+def descargar_pdf_resolucion(resolucion_id: int, db: Session = Depends(get_db), _: Annotated[Usuario, Depends(get_current_user)] = None):
     resolucion = db.query(Resolucion).filter(Resolucion.id == resolucion_id).first()
     if not resolucion:
         return JSONResponse(
@@ -112,7 +116,7 @@ def descargar_pdf_resolucion(resolucion_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete("/{resolucion_id}/pdf", response_model=None)
-def eliminar_pdf_resolucion(resolucion_id: int, db: Session = Depends(get_db)):
+def eliminar_pdf_resolucion(resolucion_id: int, db: Session = Depends(get_db), _: Annotated[Usuario, Depends(get_admin_user)] = None):
     resolucion = db.query(Resolucion).filter(Resolucion.id == resolucion_id).first()
     if not resolucion:
         return JSONResponse(

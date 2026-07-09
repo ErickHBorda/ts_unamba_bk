@@ -11,6 +11,9 @@ from app.schemas.descuento_periodo import (
     DescuentoPeriodoResponse,
 )
 from app.schemas.response import success_response, error_response
+from typing import Annotated
+from app.core.dependencies import get_current_user, get_admin_user
+from app.models.usuario import Usuario
 
 router = APIRouter()
 
@@ -20,7 +23,7 @@ def calcular_total(faltas: int, permisos: int, licencias: int) -> int:
 
 
 @router.get("/{periodo_id}/descuento", response_model=None)
-def obtener_descuento(periodo_id: int, db: Session = Depends(get_db)):
+def obtener_descuento(periodo_id: int, db: Session = Depends(get_db), _: Annotated[Usuario, Depends(get_current_user)] = None):
     periodo = db.query(PeriodoServicio).filter(PeriodoServicio.id == periodo_id).first()
     if not periodo:
         return JSONResponse(
@@ -53,6 +56,7 @@ def crear_descuento(
     periodo_id: int,
     payload:    DescuentoPeriodoCreate,
     db:         Session = Depends(get_db),
+    _:          Annotated[Usuario, Depends(get_admin_user)] = None
 ):
     periodo = db.query(PeriodoServicio).filter(PeriodoServicio.id == periodo_id).first()
     if not periodo:
@@ -107,6 +111,7 @@ def actualizar_descuento(
     periodo_id: int,
     payload:    DescuentoPeriodoUpdate,
     db:         Session = Depends(get_db),
+    _:          Annotated[Usuario, Depends(get_admin_user)] = None
 ):
     periodo = db.query(PeriodoServicio).filter(PeriodoServicio.id == periodo_id).first()
     if not periodo:
@@ -149,7 +154,7 @@ def actualizar_descuento(
 
 
 @router.delete("/{periodo_id}/descuento", response_model=None)
-def eliminar_descuento(periodo_id: int, db: Session = Depends(get_db)):
+def eliminar_descuento(periodo_id: int, db: Session = Depends(get_db), _: Annotated[Usuario, Depends(get_admin_user)] = None):
     periodo = db.query(PeriodoServicio).filter(PeriodoServicio.id == periodo_id).first()
     if not periodo:
         return JSONResponse(

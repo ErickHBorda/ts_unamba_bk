@@ -8,6 +8,9 @@ from app.db.session import get_db
 from app.models.docente import Docente
 from app.schemas.docente import DocenteCreate, DocenteUpdate, DocenteResponse, DocenteListResponse
 from app.schemas.response import success_response, error_response
+from typing import Annotated
+from app.core.dependencies import get_current_user, get_admin_user
+from app.models.usuario import Usuario
 
 router = APIRouter()
 
@@ -19,6 +22,7 @@ def listar_docentes(
     skip:   int            = Query(0, ge=0),
     limit:  int            = Query(20, ge=1, le=100),
     db:     Session        = Depends(get_db),
+    _:      Annotated[Usuario, Depends(get_current_user)] = None,
 ):
     query = db.query(Docente)
 
@@ -44,7 +48,8 @@ def listar_docentes(
 
 
 @router.get("/conteo", response_model=None)
-def conteo_docentes(db: Session = Depends(get_db)):
+def conteo_docentes(
+    db: Session = Depends(get_db), _:  Annotated[Usuario, Depends(get_current_user)] = None,):
     total     = db.query(Docente).count()
     activos   = db.query(Docente).filter(Docente.activo == True).count()
     inactivos = db.query(Docente).filter(Docente.activo == False).count()
@@ -57,7 +62,7 @@ def conteo_docentes(db: Session = Depends(get_db)):
 
 
 @router.get("/{docente_id}", response_model=None)
-def obtener_docente(docente_id: int, db: Session = Depends(get_db)):
+def obtener_docente(docente_id: int, db: Session = Depends(get_db), _:  Annotated[Usuario, Depends(get_current_user)] = None,):
     docente = db.query(Docente).filter(Docente.id == docente_id).first()
     if not docente:
         return JSONResponse(
@@ -74,7 +79,7 @@ def obtener_docente(docente_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=None, status_code=status.HTTP_201_CREATED)
-def crear_docente(payload: DocenteCreate, db: Session = Depends(get_db)):
+def crear_docente(payload: DocenteCreate, db: Session = Depends(get_db), _: Annotated[Usuario, Depends(get_admin_user)] = None,):
     existente = db.query(Docente).filter(Docente.dni == payload.dni).first()
     if existente:
         return JSONResponse(
@@ -103,6 +108,7 @@ def actualizar_docente(
     docente_id: int,
     payload:    DocenteUpdate,
     db:         Session = Depends(get_db),
+    _:          Annotated[Usuario, Depends(get_admin_user)] = None,
 ):
     docente = db.query(Docente).filter(Docente.id == docente_id).first()
     if not docente:
@@ -127,7 +133,7 @@ def actualizar_docente(
 
 
 @router.delete("/{docente_id}", response_model=None)
-def eliminar_docente(docente_id: int, db: Session = Depends(get_db)):
+def eliminar_docente(docente_id: int, db: Session = Depends(get_db), _: Annotated[Usuario, Depends(get_admin_user)] = None,):
     docente = db.query(Docente).filter(Docente.id == docente_id).first()
     if not docente:
         return JSONResponse(

@@ -11,6 +11,9 @@ from app.schemas.docente_resolucion import (
     DocenteResolucionResponse,
 )
 from app.schemas.response import success_response, error_response
+from typing import Annotated
+from app.core.dependencies import get_current_user, get_admin_user
+from app.models.usuario import Usuario
 
 router = APIRouter()
 
@@ -19,6 +22,7 @@ router = APIRouter()
 def listar_resoluciones_de_docente(
     docente_id: int,
     db:         Session = Depends(get_db),
+    _:          Annotated[Usuario, Depends(get_current_user)] = None
 ):
     docente = db.query(Docente).filter(Docente.id == docente_id).first()
     if not docente:
@@ -43,6 +47,7 @@ def listar_resoluciones_de_docente(
 def listar_docentes_de_resolucion(
     resolucion_id: int,
     db:            Session = Depends(get_db),
+    _:             Annotated[Usuario, Depends(get_current_user)] = None
 ):
     resolucion = db.query(Resolucion).filter(Resolucion.id == resolucion_id).first()
     if not resolucion:
@@ -67,6 +72,7 @@ def listar_docentes_de_resolucion(
 def asignar_resolucion_a_docente(
     payload: DocenteResolucionCreate,
     db:      Session = Depends(get_db),
+    _:       Annotated[Usuario, Depends(get_admin_user)] = None
 ):
     if not db.query(Docente).filter(Docente.id == payload.docente_id).first():
         return JSONResponse(
@@ -119,6 +125,7 @@ def asignar_resolucion_a_docente(
 def desasignar_resolucion_de_docente(
     payload: DocenteResolucionCreate,
     db:      Session = Depends(get_db),
+    _:       Annotated[Usuario, Depends(get_admin_user)] = None
 ):
     relacion = db.query(DocenteResolucion).filter(
         DocenteResolucion.docente_id    == payload.docente_id,

@@ -14,6 +14,10 @@ from app.schemas.resolucion import (
 )
 from app.schemas.response import success_response, error_response
 
+from typing import Annotated
+from app.core.dependencies import get_current_user, get_admin_user
+from app.models.usuario import Usuario
+
 router = APIRouter()
 
 
@@ -23,6 +27,7 @@ def listar_resoluciones(
     skip:   int           = Query(0, ge=0),
     limit:  int           = Query(20, ge=1, le=100),
     db:     Session       = Depends(get_db),
+    _:      Annotated[Usuario, Depends(get_current_user)] = None,
 ):
     query = db.query(Resolucion)
 
@@ -45,7 +50,7 @@ def listar_resoluciones(
 
 
 @router.get("/{resolucion_id}", response_model=None)
-def obtener_resolucion(resolucion_id: int, db: Session = Depends(get_db)):
+def obtener_resolucion(resolucion_id: int, db: Session = Depends(get_db), _: Annotated[Usuario, Depends(get_current_user)] = None):
     resolucion = db.query(Resolucion).filter(Resolucion.id == resolucion_id).first()
     if not resolucion:
         return JSONResponse(
@@ -62,7 +67,7 @@ def obtener_resolucion(resolucion_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=None, status_code=status.HTTP_201_CREATED)
-def crear_resolucion(payload: ResolucionCreate, db: Session = Depends(get_db)):
+def crear_resolucion(payload: ResolucionCreate, db: Session = Depends(get_db), _: Annotated[Usuario, Depends(get_admin_user)] = None):
     existente = db.query(Resolucion).filter(
         Resolucion.numero_resolucion == payload.numero_resolucion
     ).first()
@@ -93,6 +98,7 @@ def actualizar_resolucion(
     resolucion_id: int,
     payload:       ResolucionUpdate,
     db:            Session = Depends(get_db),
+    _:             Annotated[Usuario, Depends(get_admin_user)] = None,  
 ):
     resolucion = db.query(Resolucion).filter(Resolucion.id == resolucion_id).first()
     if not resolucion:
@@ -131,7 +137,7 @@ def actualizar_resolucion(
 
 
 @router.delete("/{resolucion_id}", response_model=None)
-def eliminar_resolucion(resolucion_id: int, db: Session = Depends(get_db)):
+def eliminar_resolucion(resolucion_id: int, db: Session = Depends(get_db), _: Annotated[Usuario, Depends(get_admin_user)] = None):
     resolucion = db.query(Resolucion).filter(Resolucion.id == resolucion_id).first()
     if not resolucion:
         return JSONResponse(
