@@ -8,9 +8,24 @@ from app.schemas.auth import LoginRequest
 from app.schemas.response import success_response, error_response
 from app.core.security import verify_password, crear_access_token
 from datetime import datetime
+from typing import Annotated
+from app.core.dependencies import get_current_user
 
 router = APIRouter()
 
+@router.get("/me", response_model=None)
+def get_me(current_user: Annotated[Usuario, Depends(get_current_user)]):
+    """
+    Retorna los datos del usuario autenticado actual.
+    Útil para que el frontend valide el token al iniciar sesión.
+    """
+    return success_response(data={
+        "id":             current_user.id,
+        "nombre_usuario": current_user.nombre_usuario,
+        "email":          current_user.email,
+        "rol":            current_user.rol,
+        "ultimo_acceso":  current_user.ultimo_acceso.isoformat() if current_user.ultimo_acceso else None,
+    })
 
 @router.post("/login", response_model=None)
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
