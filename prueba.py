@@ -1,5 +1,6 @@
 #from datetime import date
 #from app.services.calculo_tiempo import calcular_diferencia_30_360
+"""
 from datetime import date
 from app.services.calculo_tiempo import calcular_diferencia_30_360
 
@@ -9,6 +10,7 @@ print(calcular_diferencia_30_360(date(2020, 11, 14), date(2021, 4, 6)))  # Esper
 print(calcular_diferencia_30_360(date(2021, 6, 9),  date(2021, 10, 18))) # Esperado: (0, 4, 9)
 print(calcular_diferencia_30_360(date(2021, 10, 20), date(2022, 3, 9)))  # Esperado: (0, 4, 17)
 print(calcular_diferencia_30_360(date(2020, 1, 1),  date(2022, 12, 31))) # Esperado: (3, 0, 0)
+"""
 #from datetime import date
 #from app.services.calculo_tiempo import calcular_dias_brutos_periodo
 
@@ -39,7 +41,7 @@ print(calcular_diferencia_30_360(date(2020, 1, 1),  date(2022, 12, 31))) # Esper
 #)
 #print("MANUAL:", r3)  # Esperado: (1, 6, 15)
 
-from app.services.calculo_tiempo import (
+"""from app.services.calculo_tiempo import (
     calcular_tiempo_efectivo_periodo,
     sumar_tiempos_efectivos,
 )
@@ -73,3 +75,12 @@ periodos = [
 total = sumar_tiempos_efectivos(periodos)
 print("Total:", total)
 # Esperado: (3, 3, 13, 1193, 10, 1183)
+"""
+#from app.core.security import hash_password
+#print(hash_password("Admin123!"))
+
+from app.core.security import hash_password, verify_password
+
+hashed = hash_password("Admin123!")
+print(verify_password("Admin123!", hashed))   # Esperado: True
+print(verify_password("WrongPass", hashed))   # Esperado: False

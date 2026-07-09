@@ -11,6 +11,11 @@ class Settings(BaseSettings):
     DB_NAME: str
     SECRET_KEY: str
 
+    # JWT
+    SECRET_KEY:                  str
+    ALGORITHM:                   str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 480
+
     # Almacenamiento local
     STORAGE_DIR:       Path = BASE_DIR / "storage"
     RESOLUCIONES_DIR:  Path = BASE_DIR / "storage" / "resoluciones"
