@@ -7,7 +7,8 @@ from app.api.v1.endpoints import (
     descuentos, 
     docente_resoluciones,
     calculos,
-    auth
+    auth,
+    reportes,
 )
 router = APIRouter(prefix="/api/v1")
 router.include_router(auth.router,  prefix="/auth",     tags=["Autenticación"])
@@ -18,3 +19,4 @@ router.include_router(periodos.router,    prefix="/periodos",     tags=["Periodo
 router.include_router(descuentos.router,  prefix="/periodos",     tags=["Descuentos de Periodo"])
 router.include_router(docente_resoluciones.router, prefix="/docente-resoluciones", tags=["Docente Resoluciones"])
 router.include_router(calculos.router,             prefix="/docentes",              tags=["Cálculo de Tiempo"])
+router.include_router(reportes.router,            prefix="/docentes",              tags=["Reportes PDF"])
