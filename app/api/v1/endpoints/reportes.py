@@ -74,6 +74,8 @@ def generar_reporte(
             "etiqueta_periodo":       periodo.etiqueta_periodo if periodo else "—",
             "condicion":              periodo.condicion.nombre if periodo else "—",
             "categoria":              periodo.categoria.nombre if periodo else "—",
+            "categoria_codigo":       periodo.categoria.codigo if periodo else "—",
+            "numero_resolucion":      periodo.resolucion.numero_resolucion if periodo and periodo.resolucion else "—",
             "fecha_inicio":           periodo.fecha_inicio.isoformat() if periodo and periodo.fecha_inicio else None,
             "fecha_fin":              periodo.fecha_fin.isoformat() if periodo and periodo.fecha_fin else None,
             "dias_brutos_periodo":    detalle.dias_brutos_periodo,
@@ -84,13 +86,25 @@ def generar_reporte(
             "dias_efectivos":         detalle.dias_efectivos,
         })
 
+    # Obtener último periodo activo para categoría y condición actual
+    ultimo_periodo = (
+        db.query(PeriodoServicio)
+        .filter(
+            PeriodoServicio.docente_id == docente_id,
+            PeriodoServicio.activo     == True,
+        )
+        .order_by(PeriodoServicio.id.desc())
+        .first()
+    )
     # ── 5. Construir dict del docente ────────────────────────────────────
     docente_data = {
-        "id":        docente.id,
-        "nombres":   docente.nombres,
-        "apellidos": docente.apellidos,
-        "dni":       docente.dni,
-        "email":     docente.email,
+        "id":               docente.id,
+        "nombres":          docente.nombres,
+        "apellidos":        docente.apellidos,
+        "dni":              docente.dni,
+        "email":            docente.email,
+        "categoria_actual": ultimo_periodo.categoria.nombre if ultimo_periodo else "—",
+        "condicion_actual": ultimo_periodo.condicion.nombre if ultimo_periodo else "—",
     }
 
     # ── 6. Construir dict del cálculo ────────────────────────────────────
