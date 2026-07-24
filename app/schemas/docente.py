@@ -2,11 +2,12 @@ from pydantic import BaseModel, EmailStr, field_validator
 from datetime import date, datetime
 from typing import Optional
 
+
 class DocenteBase(BaseModel):
-    nombres:          str
-    apellidos:        str
-    dni:              str
-    email:            Optional[EmailStr] = None
+    nombres: str
+    apellidos: str
+    dni: str
+    email: Optional[EmailStr] = None
     fecha_nacimiento: Optional[date] = None
 
     @field_validator("dni")
@@ -29,11 +30,11 @@ class DocenteCreate(DocenteBase):
 
 
 class DocenteUpdate(BaseModel):
-    nombres:          Optional[str] = None
-    apellidos:        Optional[str] = None
-    email:            Optional[EmailStr] = None
+    nombres: Optional[str] = None
+    apellidos: Optional[str] = None
+    email: Optional[EmailStr] = None
     fecha_nacimiento: Optional[date] = None
-    activo:           Optional[bool] = None
+    activo: Optional[bool] = None
 
     @field_validator("nombres", "apellidos", mode="before")
     @classmethod
@@ -44,8 +45,8 @@ class DocenteUpdate(BaseModel):
 
 
 class DocenteResponse(DocenteBase):
-    id:         int
-    activo:     bool
+    id: int
+    activo: bool
     created_at: datetime
     updated_at: datetime
 
@@ -53,11 +54,14 @@ class DocenteResponse(DocenteBase):
 
 
 class DocenteListResponse(BaseModel):
-    id:        int
-    nombres:   str
+    id: int
+    nombres: str
     apellidos: str
-    dni:       str
-    email:     Optional[str] = None
-    activo:    bool
+    dni: str
+    email: Optional[str] = None
+    activo: bool
+    categoria_codigo: Optional[str] = None
+    categoria_nombre: Optional[str] = None
+    condicion_nombre: Optional[str] = None
 
     model_config = {"from_attributes": True}
